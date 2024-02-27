@@ -516,6 +516,7 @@ module fv_arrays_mod
 !-----------------------------------------------------------------------------------------------
 
    logical :: reset_eta = .false.
+   logical :: ignore_rst_cksum = .false. !< enfore (.false.) or override (.true.) data integrity restart checksums
    real    :: p_fac = 0.05  !< Safety factor for minimum nonhydrostatic pressures, which
                             !< will be limited so the full pressure is no less than p_fac
                             !< times the hydrostatic pressure. This is only of concern in mid-top
@@ -697,6 +698,9 @@ module fv_arrays_mod
                          !< considered; and for non-hydrostatic models values of 10 or less should be
                          !< considered, with smaller values for higher-resolution.
    real    :: rf_cutoff = 30.E2   !< Pressure below which no Rayleigh damping is applied if tau > 0.
+   real    :: fast_tau_w_sec = 0.0 !< Time scale (seconds) for Rayleigh damping applied to vertical velocity only.
+                                   !< Values of 0.2 are very effective at eliminating spurious vertical motion in
+                                   !< the stratosphere. Default is 0.0, which disables this.
    logical :: filter_phys = .false.
    logical :: dwind_2d = .false.   !< Whether to use a simpler & faster algorithm for interpolating
                                    !< the A-grid (cell-centered) wind tendencies computed from the physics
@@ -746,6 +750,8 @@ module fv_arrays_mod
                                           !< matches some estimate of observed value. False by default. It
                                           !< is recommended to only set this to .true. when initializing the model.
    logical :: fv_debug  = .false.  !< Whether to turn on additional diagnostics in fv_dynamics.
+                                   !< The default is .false.
+   logical :: fv_timers  = .false. !< Whether to turn on performance metering timers in the dycore and moving nest
                                    !< The default is .false.
    logical :: srf_init  = .false.
    logical :: mountain  = .true.  !< Takes topography into account when initializing the
@@ -1303,6 +1309,7 @@ module fv_arrays_mod
 #if defined(SPMD)
 
      type(domain2D) :: domain_for_coupler !< domain used in coupled model with halo = 1.
+     type(domain2D) :: domain_for_read    !< domain used for reads to increase performance when io_layout=(1,1)
 
      !global tile and tile_of_mosaic only have a meaning for the CURRENT pe
      integer :: num_contact, npes_per_tile, global_tile, tile_of_mosaic, npes_this_grid

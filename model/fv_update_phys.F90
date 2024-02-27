@@ -89,7 +89,11 @@ module fv_update_phys_mod
 !   </tr>
 ! </table>
 
+#ifdef OVERLOAD_R4
+  use constantsR4_mod,      only: kappa, rdgas, rvgas, grav, cp_air, cp_vapor, pi=>pi_8, radius, TFREEZE
+#else
   use constants_mod,      only: kappa, rdgas, rvgas, grav, cp_air, cp_vapor, pi=>pi_8, radius, TFREEZE
+#endif
   use field_manager_mod,  only: MODEL_ATMOS
   use mpp_domains_mod,    only: mpp_update_domains, domain2d
   use mpp_parameter_mod,  only: AGRID_PARAM=>AGRID
@@ -440,6 +444,7 @@ module fv_update_phys_mod
                           ice_wat, snowwat, graupel, hailwat, q, qc, cvm, pt(is:ie,j,k) )
             do i=is,ie
                pt(i,j,k) = pt(i,j,k) + t_dt(i,j,k)*dt*con_cp/cvm(i)
+	       
             enddo
          enddo
       else
@@ -450,7 +455,11 @@ module fv_update_phys_mod
                               ice_wat, snowwat, graupel, hailwat, q, qc, cvm, pt(is:ie,j,k) )
                 do i=is,ie
                    delz(i,j,k) = delz(i,j,k) / pt(i,j,k)
+#ifdef MULTI_GASES
+                   pt(i,j,k) = pt(i,j,k) + t_dt(i,j,k)*dt
+#else		   
                    pt(i,j,k) = pt(i,j,k) + t_dt(i,j,k)*dt*con_cp/cvm(i)
+#endif		   
                    delz(i,j,k) = delz(i,j,k) * pt(i,j,k)
                 enddo
              enddo
@@ -468,6 +477,8 @@ module fv_update_phys_mod
                                 ice_wat, snowwat, graupel, hailwat, q, qc, cvm, pt(is:ie,j,k))
                   do i=is,ie
                      pt(i,j,k) = pt(i,j,k) + t_dt(i,j,k)*dt*con_cp/cvm(i)
+                     
+		     		     
                   enddo
                enddo
             endif
