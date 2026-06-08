@@ -1,3 +1,7 @@
+- **This repository has	been archived and is no longer maintained.**
+- The code is provided for historical reference	and may	contain	unpatched or unknown vulnerabilities.
+- It should **not** be used in production systems.
+
 # GFDL_atmos_cubed_sphere
 
 The source contained herein reflects the 202204 release of the Finite Volume Cubed-Sphere Dynamical Core (FV3) from GFDL
